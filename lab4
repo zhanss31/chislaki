@@ -1,0 +1,117 @@
+package lab4;
+
+public class roots {
+    static double func(double x) {
+        return Math.acos((x-3)/8)-x*x/2+3*x + 1;
+    }
+    static double func1(double x) {
+        return -1 / Math.pow(64 - Math.pow(x - 3, 2), 0.5) - x + 3;
+    }
+    static double dichtomy(double a, double b, double E)
+    {
+        int N= (int) ( Math.log(Math.abs(b-a)/E)/Math.log(2) +3);
+        double [] C= new double[N];
+        double [] a1= new double[N];
+        double [] b1= new double[N];
+        a1[0]=a;
+        b1[0]=b;
+        C[0]=(a+b)/2;
+        for(int i=0;i<N-1;i++)
+        {
+            if(func(a1[i])*func(C[i])<0)
+            {
+                b1[i+1]=C[i];
+                a1[i+1]=a1[i];
+                C[i+1]=(b1[i+1]+a1[i+1])/2;
+                if(Math.abs(func(b1[i+1])-func(C[i+1]))<E)
+                {
+                    return C[i+1];
+                }
+            }
+            if(func(b1[i])*func(C[i])<0)
+            {
+                a1[i+1]=C[i];
+                b1[i+1]=b1[i];
+                C[i+1]=(b1[i+1]+a1[i+1])/2;
+                if(Math.abs(func(b1[i+1])-func(C[i+1]))<E)
+                {
+                    return C[i+1];
+                }
+            }
+
+        }
+        return C[N-1];
+    }
+    static double newton(double b, double E)
+    {
+        double x1=b;
+        double x2=x1-func(x1)/func1(x1);
+        while(Math.abs(func(x2))>=E)
+        {
+            x1=x2;
+            x2=x1-func(x1)/func1(x1);
+        }
+        return x2;
+    }
+
+    static double hord(double a, double b, double E)
+    {
+        double x0=b;
+        double x=a;
+        double x1=b;
+        do
+        {
+            x1=x;
+            x= x-func(x)*(x-x0)/(func(x)-func(x0));
+
+
+        } while(Math.abs(x1-x)>=E);
+        return x;
+    }
+    static double hordSpeed(double a, double b, double E)
+    {
+        double N=0;
+        double x0=b;
+        double x=a;
+        double x1=b;
+        double xn=0;
+        double xn1=0;
+        while(Math.abs(x1-x)>=E)
+        {
+            xn1=xn;
+            xn=x;
+            x1=x;
+            x= x-func(x)*(x-x0)/(func(x)-func(x0));
+        }
+        N=(Math.log(Math.abs(xn-x))/Math.log(Math.abs(xn1-x))-Math.log(0.65));
+        return N;
+    }
+
+    public static void main ( String[] args)
+    {
+        double a=0;
+        double b=10;
+        double E1=0.001;
+        double E2=0.000001;
+        double E3=0.000000001;
+        System.out.println(dichtomy(a,b,E1));
+        System.out.println(newton(b,E1));
+        System.out.println(hord(a,b,E1));
+        System.out.println(hordSpeed(a,b,E1));
+        System.out.println();
+
+        System.out.println(dichtomy(a,b,E2));
+        System.out.println(newton(b,E2));
+        System.out.println(hord(a,b,E2));
+        System.out.println(hordSpeed(a,b,E2));
+        System.out.println();
+
+        System.out.println(dichtomy(a,b,E3));
+        System.out.println(newton(b,E3));
+        System.out.println(hord(a,b,E3));
+        System.out.println(hordSpeed(a,b,E3));
+        System.out.println();
+
+    }
+
+    }
