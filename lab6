@@ -1,0 +1,300 @@
+package lab6;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import javax.swing.*;
+
+public class Lab6 {
+    static double func(double x)
+    {
+        return Math.pow(Math.cos(x),0.5)+Math.exp(-x);
+    }
+    static double f(double x)
+    {
+        return -Math.pow(Math.cos(x),0.5)*(3+Math.tan(x))/2;
+    }
+    static double P(double x)
+    {
+        return -Math.tan(x)/2;
+    }
+    static double q(double x)
+    {
+        return -1-Math.tan(x)/2;
+    }
+    static double[] step(double b, double h)
+    {
+        int n= (int) Math.round((b) / h)+1;
+        double[] arr = new double[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = h*i;
+        }
+        return arr;
+    }
+
+
+    static double [] progon(double []x, double h)
+    {
+        //double al1=4;
+        //double bt1=1;
+        //double gam1=7;
+        double al1=1;
+        double bt1=0;
+        double gam1=func(x[0]);
+
+        double al2=0;
+        double bt2=1;
+        double gam2=-0.940267729;
+
+        double fun[]=new double[x.length];
+        fun[0]=gam1;
+        fun[x.length-1]=gam2;
+        for(int i=1;i<x.length-1;i++)
+        {
+            fun[i]=f(x[i]);
+        }
+        double y[]=new double[x.length];
+        double a[]=new double[x.length];
+        double b[]=new double[x.length];
+        double c[]=new double[x.length];
+        a[0]=0;
+        b[0]=al1-bt1/h;
+        c[0]=bt1/h;
+        a[x.length-1]=-bt2/h;
+        b[x.length-1]=al2+bt2/h;
+        for(int i=1;i<x.length-1;i++)
+        {
+            a[i]=1.0/Math.pow(h,2)-P(x[i])/(2*h);
+            b[i]=-2.0/Math.pow(h,2) +q(x[i]);
+            c[i]=1.0/Math.pow(h,2)+P(x[i])/(2*h);
+        }
+        double A[]=new double[x.length];
+        double B[]=new double[x.length];
+        A[0]=-c[0]/b[0];
+        B[0]=fun[0]/b[0];
+        for(int i=1;i<x.length;i++)
+        {
+            A[i]=-c[i]/(b[i]+a[i]*A[i-1]);
+            B[i]=(fun[i]-a[i]*B[i-1])/(b[i]+a[i]*A[i-1]);
+        }
+        A[x.length-1]=0;
+        B[x.length-1]= (fun[x.length-1]-a[x.length-1]*B[x.length-2])/(b[x.length-1]+a[x.length-1]*A[x.length-2]);
+        y[x.length-1]=B[x.length-1];
+        for(int i=1;i<x.length;i++)
+        {
+            y[x.length-i-1]=B[x.length-i-1]+A[x.length-i-1]*y[x.length-i];
+        }
+
+        return y;
+
+    }
+    static double [] progon2(double []x, double h)
+    {
+        //double al1=4;
+        //double bt1=1;
+        //double gam1=7;
+
+        double al1=1;
+        double bt1=0;
+        double gam1=func(x[0]);
+
+        double al2=0;
+        double bt2=1;
+        double gam2=-0.940267729;
+
+        double fun[]=new double[x.length];
+        double y[]=new double[x.length];
+        double a[]=new double[x.length];
+        double b[]=new double[x.length];
+        double c[]=new double[x.length];
+        for(int i=1;i<x.length-1;i++)
+        {
+            fun[i]=f(x[i]);
+        }
+
+        if(bt1!=0)
+        {
+            fun[0]=f(x[0])*Math.pow(h,2)+2*gam1*h/bt1-gam1*Math.pow(h,2)*P(x[0])/bt1;
+            fun[x.length-1]=f(x[x.length-1])*Math.pow(h,2)-2*gam2*h/bt2-gam2*Math.pow(h,2)*P(x[x.length-1])/bt2;
+            a[0]=0;
+            c[0]=2;
+            b[0]=-2+2*al1*h/bt1-al1*Math.pow(h,2)*P(x[0])/bt1+q(x[0])*Math.pow(h,2);
+            a[x.length-1]=2;
+            b[x.length-1]=-2-2*h*al2/bt2-al2*Math.pow(h,2)*P(x[x.length-1])/bt2+q(x[x.length-1])*Math.pow(h,2);
+            for(int i=1;i<x.length-1;i++)
+            {
+                a[i]=1.0/Math.pow(h,2)-P(x[i])/(2*h);
+                b[i]=-2.0/Math.pow(h,2) +q(x[i]);
+                c[i]=1.0/Math.pow(h,2)+P(x[i])/(2*h);
+            }
+        }
+        else
+        {
+            fun[0]=gam1;
+            fun[x.length-1]=f(x[x.length-1])*Math.pow(h,2)-2*gam2*h/bt2-gam2*Math.pow(h,2)*P(x[x.length-1])/bt2;
+            a[0]=0;
+            b[0]=1;
+            c[0]=0;
+            a[x.length-1]=2;
+            b[x.length-1]=-2-2*h*al2/bt2-al2*Math.pow(h,2)*P(x[x.length-1])/bt2+q(x[x.length-1])*Math.pow(h,2);
+            for(int i=1;i<x.length-1;i++)
+            {
+                a[i]=1.0/Math.pow(h,2)-P(x[i])/(2*h);
+                b[i]=-2.0/Math.pow(h,2) +q(x[i]);
+                c[i]=1.0/Math.pow(h,2)+P(x[i])/(2*h);
+            }
+        }
+        if(bt2==0)
+        {
+            fun[0]=f(x[0])*Math.pow(h,2)+2*gam1*h/bt1-gam1*Math.pow(h,2)*P(x[0])/bt1;
+            fun[x.length-1]=func(x[x.length-1]);
+            a[0]=0;
+            c[0]=2;
+            b[0]=-2+2*al1*h/bt1-al1*Math.pow(h,2)*P(x[0])/bt1+q(x[0])*Math.pow(h,2);
+            a[x.length-1]=2;
+            b[x.length-1]=1;
+            for(int i=1;i<x.length-1;i++)
+            {
+                a[i]=1.0/Math.pow(h,2)-P(x[i])/(2*h);
+                b[i]=-2.0/Math.pow(h,2) +q(x[i]);
+                c[i]=1.0/Math.pow(h,2)+P(x[i])/(2*h);
+            }
+        }
+
+
+        double A[]=new double[x.length];
+        double B[]=new double[x.length];
+        A[0]=-c[0]/b[0];
+        B[0]=fun[0]/b[0];
+        for(int i=1;i<x.length;i++)
+        {
+            A[i]=-c[i]/(b[i]+a[i]*A[i-1]);
+            B[i]=(fun[i]-a[i]*B[i-1])/(b[i]+a[i]*A[i-1]);
+        }
+        A[x.length-1]=0;
+        B[x.length-1]= (fun[x.length-1]-a[x.length-1]*B[x.length-2])/(b[x.length-1]+a[x.length-1]*A[x.length-2]);
+        y[x.length-1]=B[x.length-1];
+        for(int i=1;i<x.length;i++)
+        {
+            y[x.length-i-1]=B[x.length-i-1]+A[x.length-i-1]*y[x.length-i];
+        }
+        return y;
+    }
+
+    public static void main ( String[] args) {
+        double b = 1;
+        double h = 0.05;
+        double [] step=step(b,h);
+        double [] progon1 =progon(step,h);
+        double [] progon3 =progon2(step,h);
+        double [] funct= new double [step.length];
+        for(int i=0;i<step.length; i++)
+        {
+            funct[i]=func(step[i]);
+        }
+        XYSeriesCollection data = new XYSeriesCollection();
+        XYSeries func= new XYSeries("func");
+        XYSeries progon= new XYSeries("progon");
+        XYSeries progon2_y= new XYSeries("progon2");
+        for (int i = 1; i < funct.length; ++i) {
+            func.add(step[i],funct[i]);
+            progon.add(step[i],progon1[i]);
+            progon2_y.add(step[i],progon3[i]);
+
+        }
+        data.addSeries(func);
+        data.addSeries(progon);
+        data.addSeries(progon2_y);
+        XYDataset dataset = data;
+        JFreeChart chart = ChartFactory.createXYLineChart("Прогонка", "x", "y", dataset);
+
+        JFrame frame = new JFrame("Frame");
+        ChartPanel panel = new ChartPanel(chart);
+        frame.getContentPane().add(panel);
+        frame.setSize(640, 640);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.show();
+        double []h1=new double[20];
+        double []max1=new double[20];
+        double []max2=new double[20];
+        for(int j=0;j<20;j++)
+        {
+            h1[j]=1.0/(10+j*10);
+            max1[j]=0;
+            max2[j]=0;
+
+            double [] step1=step(b,h1[j]);
+            double [] progon2 = progon(step1,h1[j]);
+            double [] progon4 = progon2(step1,h1[j]);
+            double [] funct1= new double [step1.length];
+            for(int i=0;i<step1.length; i++)
+            {
+                funct1[i]=func(step1[i]);
+            }
+            System.out.println(funct[0]-progon4[0]);
+            for(int i=1;i<progon2.length;i++)
+            {
+                if(max1[j]<Math.abs(funct1[i]-progon2[i]))
+                {
+                    max1[j]=Math.abs(funct1[i]-progon2[i]);
+                }
+                if(max2[j]<Math.abs(funct1[i]-progon4[i]))
+                {
+                    max2[j]=Math.abs(funct1[i]-progon4[i]);
+
+                }
+
+            }
+
+        }
+        for(int i=0;i<20;i++)
+        {
+            System.out.print(h1[i]+"  ");
+            h1[i]=Math.log(h1[i])+5.2;
+        }
+        System.out.println();
+
+        for(int i=0;i<20;i++)
+        {
+            System.out.print(max1[i]+"  ");
+            max1[i]=Math.log(max1[i])+7.3;
+        }
+        System.out.println();
+
+        for(int i=0;i<20;i++)
+        {
+            System.out.print(max2[i]+"  ");
+            max2[i]=Math.log(max2[i])+12.4;
+        }
+        System.out.println();
+
+        XYSeriesCollection data2 = new XYSeriesCollection();
+        XYSeries Log_progon= new XYSeries("Log_progon");
+        XYSeries Log_progon2= new XYSeries("Log_progon2");
+        for (int i = 1; i < 20; ++i) {
+            Log_progon.add(h1[i],max1[i]);
+            Log_progon2.add(h1[i],max2[i]);
+
+        }
+        data2.addSeries(Log_progon);
+        data2.addSeries(Log_progon2);
+        XYDataset dataset2 = data2;
+        JFreeChart chart2 = ChartFactory.createXYLineChart("Ошибка", "Логариф шага", "Логарифм ошибки", dataset2);
+
+        JFrame frame2 = new JFrame("Frame2");
+        ChartPanel panel2 = new ChartPanel(chart2);
+        frame2.getContentPane().add(panel2);
+        frame2.setSize(640, 640);
+        frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame2.show();
+
+
+
+    }
+
+    }
+
