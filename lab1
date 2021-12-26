@@ -1,0 +1,60 @@
+package chiclaki1;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import javax.swing.*;
+
+public class lab21 {
+    static double Cheb( int n,int k)
+    {
+        return 5+5*Math.cos((2*k-1)*Math.PI/(2*n));
+    }
+    static double Lebeg(double x, double[] arr, int n)
+    {
+        double z = 0;
+        for (int i = 0; i < n; i++)
+        {
+            double z1 = 1;
+            for (int j = 0; j < n; j++)
+            {
+                if (j != i)
+                    z1 = z1 * (x - arr[j]) / (arr[i] - arr[j]);
+
+            }
+            z += z1;
+        }
+        return z;
+    }
+    public static void main(String[] args)
+    {
+
+        int b = 10;
+        int n=200;
+        double[] arr = new double[n];
+        for (int i1 = 0; i1 < n; i1++) {
+
+            arr[i1] =Cheb(n,i1+1);
+        }
+        double[] arr1= new double[n+1];
+        arr1[0]=arr[0]/2;
+        for(int i=1;i<n;i++)
+        {
+            arr1[i]=arr[i-1]+(arr[i]-arr[i-1])/2;
+        }
+        arr1[n]=arr[n-1]+(b-arr[n-1])/2;
+        double max = Lebeg(arr1[0], arr, n);
+        for(int i=1;i<n+1;i++)
+        {
+            max=Math.max(Lebeg(arr1[i],arr,n),max);
+        }
+        System.out.println(max);
+
+    }
+
+}
